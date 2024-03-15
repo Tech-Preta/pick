@@ -1,0 +1,24 @@
+# Estágio de compilação
+FROM golang:1.18 as build
+
+# Define o diretório de trabalho como /app
+WORKDIR /app
+
+# Copia o conteúdo do diretório atual para o diretório de trabalho atual no contêiner
+COPY . ./
+
+# O comando "go mod init" é usado para criar um novo arquivo go.mod no diretório de trabalho atual.
+RUN go mod init hello
+
+# O comando "go build" é usado para compilar o aplicativo Go e a flag "-o" é usada para especificar o local de saída do binário.
+# Neste caso, o binário será gerado em /app/hello.
+RUN go build -o /app/hello
+
+# Estágio de execução
+FROM alpine:3.15.9
+
+# Copia o arquivo binário 'hello' da etapa 'build' para o diretório '/app/hello' na imagem final.
+COPY --from=build /app/hello /app/hello
+
+# Especifica o comando a ser executado quando o contêiner é iniciado.
+CMD ["/app/hello"]

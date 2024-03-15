@@ -1,0 +1,21 @@
+# Este Dockerfile configura uma compilação em várias etapas para uma aplicação Go.
+# Ele utiliza a imagem base golang:1.18, copia o código da aplicação para o contêiner,
+# inicializa o módulo Go, compila a aplicação e define o comando para executar o executável compilado.
+
+# Imagem base
+FROM golang:1.18
+
+# Diretório de trabalho
+WORKDIR /app
+
+# Copia o código da aplicação para o contêiner
+COPY . ./
+
+# Inicializa o módulo Go
+RUN go mod init hello
+
+# Compila a aplicação
+RUN go build -o /app/hello
+
+# Define o comando para executar o executável compilado
+CMD ["/app/hello"]
