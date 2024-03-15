@@ -1,0 +1,17 @@
+# Este Dockerfile cria uma imagem baseada no Ubuntu 18.04 e instala o Nginx.
+# Ele expõe a porta 80 e inicia o servidor Nginx.
+
+FROM ubuntu:18.04
+# A instrução FROM especifica a imagem base para a imagem Docker que está sendo construída.
+# Neste caso, utiliza a imagem do Ubuntu 18.04 como base.
+
+RUN apt-get update && apt-get install nginx -y
+# A instrução RUN executa um comando dentro da imagem Docker durante o processo de construção.
+# Neste caso, ela atualiza as listas de pacotes e instala o Nginx usando o gerenciador de pacotes apt-get.
+
+# Expõe a porta 80 para tráfego HTTP.
+EXPOSE 80
+
+# O comando CMD especifica o comando a ser executado quando o contêiner é iniciado.
+# Neste caso, inicia o servidor Nginx com a opção "daemon off;", que mantém o processo em execução em primeiro plano.
+CMD ["nginx", "-g", "daemon off;"]

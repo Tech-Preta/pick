@@ -1,0 +1,28 @@
+# Define a imagem base como Debian 10
+FROM debian:10
+
+# Atualiza os pacotes e instala o Apache 2
+RUN apt-get update && apt-get install -y apache2 && apt-get clean
+
+# Define as variáveis de ambiente para o Apache
+ENV APACHE_LOCK_DIR="/var/lock"
+ENV APACHE_PID_FILE="/var/run/apache2/apache2.pid"
+ENV APACHE_RUN_USER="www-data"
+ENV APACHE_RUN_DIR="/var/run/apache2"
+ENV APACHE_RUN_GROUP="www-data"
+ENV APACHE_LOG_DIR="/var/log/apache2"
+
+# Define a descrição da imagem
+LABEL description="Servidor web"
+
+# Define o volume para o diretório /var/www/html/
+VOLUME /var/www/html/
+
+# Expõe a porta 80 para acesso externo
+EXPOSE 80
+
+# Define o comando de entrada como "/usr/sbin/apachectl"
+ENTRYPOINT ["/usr/sbin/apachectl"]
+
+# Define os argumentos padrão para o comando de entrada
+CMD ["-D", "FOREGROUND"]

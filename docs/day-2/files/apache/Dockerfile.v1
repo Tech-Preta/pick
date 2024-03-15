@@ -1,0 +1,22 @@
+# Este Dockerfile cria uma imagem de servidor web Apache baseada no Debian 10.
+
+FROM debian:10
+
+# Atualiza as listas de pacotes e instala o servidor web Apache
+RUN apt-get update && apt-get install -y apache2 && apt-get clean
+
+# Define as variáveis de ambiente para o Apache
+ENV APACHE_LOCK_DIR="/var/lock"
+ENV APACHE_PID_FILE="/var/run/apache2.pid"
+ENV APACHE_RUN_USER="www-data"
+ENV APACHE_RUN_GROUP="www-data"
+ENV APACHE_LOG_DIR="/var/log/apache2"
+
+# Define uma etiqueta para a imagem
+LABEL description="Servidor Web"
+
+# Monta o diretório /var/www/html/ como um volume
+VOLUME /var/www/html/
+
+# Expose port 80 for incoming HTTP traffic
+EXPOSE 80

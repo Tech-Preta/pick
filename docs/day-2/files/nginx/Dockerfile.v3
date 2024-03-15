@@ -1,0 +1,37 @@
+# Este Dockerfile cria uma imagem baseada no Ubuntu 18.04 e instala o Nginx.
+# Ele expõe a porta 80 e inicia o servidor Nginx.
+
+FROM ubuntu:18.04
+# A instrução FROM especifica a imagem base para a imagem Docker que está sendo construída.
+# Neste caso, utiliza a imagem do Ubuntu 18.04 como base.
+
+LABEL maintainer="contato@nataliagranato.xyz"
+# A instrução LABEL adiciona metadados à imagem.
+
+# Instala o servidor web Nginx
+RUN apt-get update && apt-get install nginx -y && rm -rf /var/lib/apt/lists/*
+# Este comando Dockerfile instala o servidor web Nginx no contêiner.
+# Ele atualiza o sistema operacional e, em seguida, usa o comando apt-get para instalar o pacote nginx.
+# O parâmetro "-y" é usado para confirmar automaticamente todas as perguntas de instalação.
+# Por fim, o comando "rm -rf /var/lib/apt/lists/*" remove os arquivos de lista de pacotes desnecessários para economizar espaço em disco.
+
+# Expõe a porta 80 para tráfego HTTP.
+EXPOSE 80
+
+# Copia o arquivo index.html para o diretório /var/www/html/ dentro do container
+COPY index.html /var/www/html/
+
+# Define o diretório de trabalho como /var/www/html/ dentro do container
+WORKDIR /var/www/html/
+
+# Define a variável de ambiente APP_VERSION com o valor 1.0.0.
+ENV APP_VERSION 1.0.0
+
+ENTRYPOINT [ "nginx" ]
+# A instrução ENTRYPOINT permite que você configure um contêiner para executar um comando específico quando for iniciado.
+# É o processo principal do contêiner. Se este processo morrer, o contêiner também morre.
+
+CMD ["-g", "daemon off;"]
+# O comando CMD especifica o comando a ser executado quando o contêiner é iniciado.
+# Neste caso, inicia o servidor Nginx com a opção "daemon off;", que mantém o processo em execução em primeiro plano.
+# Usando o ENTRYPOINT e o CMD juntos, você pode definir o comando principal do contêiner e fornecer argumentos que podem ser substituídos quando o contêiner é iniciado.
