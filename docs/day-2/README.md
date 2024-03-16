@@ -147,3 +147,7 @@ Note que as variáveis ARG são apenas acessíveis durante a fase de construçã
 - ONBUILD: Adiciona uma instrução que será executada quando a imagem for usada como base para outra.
 - SHELL: Substitui o shell padrão usado nas instruções RUN, CMD e ENTRYPOINT.
 - DEPRECATED: Indica que uma instrução ou recurso é obsoleto e pode ser removido em versões futuras.
+
+# O que é um registry?
+
+Um registry de imagens Docker é um repositório que armazena e distribui imagens Docker. Ele pode ser público, como o Docker Hub, ou privado, hospedado em sua própria rede ou infraestrutura.
