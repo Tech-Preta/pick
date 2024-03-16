@@ -64,13 +64,19 @@ sudo apt-get install redis -y
 systemctl start redis && systemctl status redis
 ```
 
-8. Criando uma variável de ambiente para que a aplicação encontre o Redis:
+8. Instale todas as dependências do python:
+
+```
+pip install --no-cache-dir -r requirements.txt
+```
+
+9. Criando uma variável de ambiente para que a aplicação encontre o Redis:
 
 ```
 export REDIS_HOST=localhost
 ```
 
-9. Iniciando a aplicação:
+10. Iniciando a aplicação:
 
 ```
 flask run --host=0.0.0.0
