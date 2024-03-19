@@ -2,25 +2,25 @@
 
 Para dockerizar o projeto, siga estas etapas:
 
-1. Construa a imagem docker:
+1. **Construa a imagem docker**:
 
 ```
 docker build -t nataliagranato/linuxtips-giropops-senhas:1.0 .
 ```
 
-2. Inicie um contêiner Redis:
+2. **Inicie um contêiner Redis**:
 
 ```
 docker container run -d -p 6000:6379 --name redis redis:alpine3.19
 ```
 
-3. Descubra o IPAddress do Redis:
+3. **Descubra o IPAddress do Redis**:
 
 ```
 docker inspect ID_REDIS | grep IPAddress
 ```
 
-4. Executando a aplicação:
+4. **Executando a aplicação**:
 
 ```
 docker run -d --name giropops-senhas -p 5000:5000 --env REDIS_HOST=IP_REDIS giropops-senhas:5.0
@@ -28,7 +28,7 @@ docker run -d --name giropops-senhas -p 5000:5000 --env REDIS_HOST=IP_REDIS giro
 
 Ou
 
-5. Use o Docker Compose para construir e iniciar os serviços:
+5. **Use o Docker Compose** para construir e iniciar os serviços:
 
 ```
 docker-compose up -d
@@ -36,7 +36,7 @@ docker-compose up -d
 
 Isso iniciará tanto a aplicação quanto o contêiner Redis. A aplicação estará disponível em <http://localhost:5000/>.
 
-Certifique-se de que todas as portas necessárias estejam liberadas e de que não haja conflitos com outras aplicações em execução em sua máquina.
+**Certifique-se de que todas as portas necessárias estejam liberadas e de que não haja conflitos com outras aplicações em execução em sua máquina.**
 
 Observação: As versões dos pacotes e dependências podem variar. Certifique-se de usar as versões mais recentes e compatíveis com seu ambiente.
 
@@ -255,4 +255,64 @@ docker scout recommendations nataliagranato/linuxtips-giropops-senhas:3.0
 
 ### Assinando suas imagens com o Cosign
 
+O Cosign facilita a assinatura das imagens de container, que atesta que aquela imagem realmente foi construída por você, adicionando uma assinatura digital usando uma chave privada para garantir a integridade e a proveniência da imagem.
 
+Agora vamos assinar uma imagem e publicar no Docker Hub, o registry público do Docker.
+
+1. **Gerando o certificado e o par de chaves**:
+
+```
+cosign generate-key-pair
+```
+
+2. **Assinando a nossa imagem**:
+
+```
+cosign sign --key cosign.key nataliagranato/linuxtips-giropops-senhas:e0942c7-20240319161939
+```
+
+- Será solicitado a senha da chave privada que você criou, insira a senha, depois disso você será perguntado se deseja enviar ao repositório remoto.
+
+
+Você verá uma saída semelhante a:
+
+```
+Enter password for private key: 
+WARNING: Image reference nataliagranato/linuxtips-giropops-senhas:e0942c7-20240319161939 uses a tag, not a digest, to identify the image to sign.
+    This can lead you to sign a different image than the intended one. Please use a
+    digest (example.com/ubuntu@sha256:abc123...) rather than tag
+    (example.com/ubuntu:latest) for the input to cosign. The ability to refer to
+    images by tag will be removed in a future release.
+
+
+        The sigstore service, hosted by sigstore a Series of LF Projects, LLC, is provided pursuant to the Hosted Project Tools Terms of Use, available at https://lfprojects.org/policies/hosted-project-tools-terms-of-use/.
+        Note that if your submission includes personal data associated with this signed artifact, it will be part of an immutable record.
+        This may include the email address associated with the account with which you authenticate your contractual Agreement.
+        This information will be used for signing this artifact and will be stored in public transparency logs and cannot be removed later, and is subject to the Immutable Record notice at https://lfprojects.org/policies/hosted-project-tools-immutable-records/.
+
+By typing 'y', you attest that (1) you are not submitting the personal data of any other person; and (2) you understand and agree to the statement and the Agreement terms at the URLs listed above.
+Are you sure you would like to continue? [y/N] y
+tlog entry created with index: 79606777
+Pushing signature to: index.docker.io/nataliagranato/linuxtips-giropops-senhas
+```
+
+
+3. **Verificando a autenticidade de uma imagem**:
+
+      - Você deve trocar a key para o par de chave pública gerado com a sua chave privada.
+
+```
+cosign verify --key cosign.pub nataliagranato/linuxtips-giropops-senhas:e0942c7-20240319161939
+```
+
+A saída será semelhante a:
+
+```
+Verification for index.docker.io/nataliagranato/linuxtips-giropops-senhas:e0942c7-20240319161939 --
+The following checks were performed on each of these signatures:
+  - The cosign claims were validated
+  - Existence of the claims in the transparency log was verified offline
+  - The signatures were verified against the specified public key
+
+[{"critical":{"identity":{"docker-reference":"index.docker.io/nataliagranato/linuxtips-giropops-senhas"},"image":{"docker-manifest-digest":"sha256:8bb7196e06cfa5e58e1a686584d7a972bd1a371b66309b7452976ef1bd2bbaf5"},"type":"cosign container image signature"},"optional":{"Bundle":{"SignedEntryTimestamp":"MEUCIQCWtamqxtW2029TmBmmUNOUplkhenX1A+7SMimyeKNdiwIgGPM3GzRwi9dCWufRqQlXth318GWWUM4kBLoK6N/KuJ4=","Payload":{"body":"eyJhcGlWZXJzaW9uIjoiMC4wLjEiLCJraW5kIjoiaGFzaGVkcmVrb3JkIiwic3BlYyI6eyJkYXRhIjp7Imhhc2giOnsiYWxnb3JpdGhtIjoic2hhMjU2IiwidmFsdWUiOiI3YmEwYjhiOWY3MTcyNjJjM2IzMWI1NjQzYTZmYjhhMTU0MjI3MWVlZTQ5NTRiYzc0NzU0NmNjYjI4Yjk0ZDUyIn19LCJzaWduYXR1cmUiOnsiY29udGVudCI6Ik1FVUNJUURNTit5VUtGYk5PQWxsNUFpSExNWmNSekYvcWZxekp5eEZCaUJqOUU2NnFRSWdLWFlWSDhZelEvbUZvdytFUVRHaTZpNlBQWkh0UDk1NlVJa3QvS3RpcUJjPSIsInB1YmxpY0tleSI6eyJjb250ZW50IjoiTFMwdExTMUNSVWRKVGlCUVZVSk1TVU1nUzBWWkxTMHRMUzBLVFVacmQwVjNXVWhMYjFwSmVtb3dRMEZSV1VsTGIxcEplbW93UkVGUlkwUlJaMEZGVDBRcmRIcGFUR3RSTkdKT2JXaDRkblpzTlRSM1psVlNWMjB6TmdveFVYSjRVVEZRU0hCbVZEaDBUbkF3ZGpsdk4zWTJNVFF2ZFZFeFJGTllUM0pZZFVWUE1GRXZXRzVXYUdkVU9HcDFabXBqV2sxck5WaEJQVDBLTFMwdExTMUZUa1FnVUZWQ1RFbERJRXRGV1MwdExTMHRDZz09In19fX0=","integratedTime":1710889924,"logIndex":79607170,"logID":"c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d"}}}}]
+```
