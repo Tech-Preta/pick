@@ -141,6 +141,16 @@ Ao seguir essas práticas recomendadas, você poderá reduzir o risco de vulnera
 
 ### Análise de vulnerabilidades com o Trivy
 
+Para verificar vulnerabilidades na sua imagem, use o comando abaixo:
+
+```
+trivy image nataliagranato/linuxtips-giropops-senhas:2.0
+```
+
+Este comando fornecerá uma análise detalhada das vulnerabilidades presentes na imagem, permitindo que você conheça as vulnerabilidades, saiba como corrigir e etc. 
+
+- O exemplo de saída desse comando, pode ser consultado aqui: https://github.com/nataliagranato/giropops-senhas/blob/develop/vulnerabilidades.txt
+
 
 #### Informações Iniciais:
 - O `trivy` informa que a varredura de vulnerabilidades está ativada, assim como a verificação de segredos.
@@ -175,3 +185,74 @@ Ao seguir essas práticas recomendadas, você poderá reduzir o risco de vulnera
 4. **Mantenha o Processo Regularmente**:
    - A varredura e correção de vulnerabilidades devem ser um processo regular durante o ciclo de vida do aplicativo.
    - Configure processos automatizados para realizar varreduras de vulnerabilidades regularmente e para aplicar atualizações conforme necessário.
+
+
+### Experimentando o Docker Scout:
+
+- Faça a sua autenticação com `docker login` e utilize o comando abaixo para conhecer as CVEs, ou Common Vulnerabilities and Exposures, identificadores únicos atribuídos a vulnerabilidades de segurança específicas em software ou hardware. 
+
+```
+docker scout cves nataliagranato/linuxtips-giropops-senhas:3.0
+```
+
+
+A saída será semelhante a isso:
+
+```
+    i New version 1.6.0 available (installed version is 1.3.0) at https://github.com/docker/scout-cli
+    ✓ Image stored for indexing
+    ✓ Indexed 65 packages
+    ✗ Detected 1 vulnerable package with 2 vulnerabilities
+
+
+## Overview
+
+                    │                 Analyzed Image                  
+────────────────────┼─────────────────────────────────────────────────
+  Target            │  nataliagranato/linuxtips-giropops-senhas:3.0   
+    digest          │  e37d53bc7930                                   
+    platform        │ linux/amd64                                     
+    vulnerabilities │    0C     1H     1M     0L                      
+    size            │ 30 MB                                           
+    packages        │ 65                                              
+
+
+## Packages and Vulnerabilities
+
+   0C     1H     1M     0L  redis 4.5.4
+pkg:pypi/redis@4.5.4
+
+    ✗ HIGH CVE-2023-31655
+      https://scout.docker.com/v/CVE-2023-31655?s=pypa&n=redis&t=pypi&vr=%3D4.5.4
+      Affected range : =4.5.4     
+      Fixed version  : not fixed  
+    
+    ✗ MEDIUM CVE-2023-28859
+      https://scout.docker.com/v/CVE-2023-28859?s=pypa&n=redis&t=pypi&vr=%3C5.0.0b1
+      Affected range : <5.0.0b1  
+      Fixed version  : 5.0.0b1   
+    
+
+
+2 vulnerabilities found in 1 package
+  LOW       0  
+  MEDIUM    1  
+  HIGH      1  
+  CRITICAL  0  
+
+
+What's Next?
+  View base image update recommendations → docker scout recommendations nataliagranato/linuxtips-giropops-senhas:3.0
+
+```
+
+Para ver as recomendações do Docker Scout utilize:
+
+```
+docker scout recommendations nataliagranato/linuxtips-giropops-senhas:3.0
+```
+
+
+### Assinando suas imagens com o Cosign
+
+
