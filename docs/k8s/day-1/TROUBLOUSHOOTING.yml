@@ -1,0 +1,93 @@
+O troubleshooting, ou solução de problemas, é o processo de identificar, diagnosticar e resolver problemas em um sistema ou processo que não está funcionando conforme o esperado. No contexto de tecnologia da informação (TI), o troubleshooting é uma habilidade crucial para profissionais de suporte técnico, administradores de sistemas, engenheiros de rede e outros profissionais de TI.
+
+### O que há de errado com o manifesto a seguir?
+
+```
+ apiVersion: v1beta1
+kind: pods
+metadata:
+  labels:
+    run: nginx-giropops
+    app: giropops-strigus
+  name: nginx_giropops
+spec:
+  containers:
+  - image: nginx
+    name: nginx_giropops
+    ports:
+    - containerPort: 80
+    resources: 
+      limits: 
+        memory:
+        cpu: "0.5"
+    requests:
+        memory: "4400MB"
+        cpu: "0,3"
+  dnsPolicy: ClusterSecond
+  restartPolicy: Always
+```
+
+Há alguns problemas de formatação e de uso incorreto de campos no arquivo YAML fornecido, é importante se atentar a versão da `apiVersion` do Kubernetes. Aqui está uma versão corrigida:
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: nginx-giropops
+    app: giropops-strigus
+  name: nginx-giropops
+spec:
+  containers:
+  - image: nginx
+    name: nginx-giropops
+    ports:
+    - containerPort: 80
+    resources: 
+      limits: 
+        memory: "4400Mi"
+        cpu: "500m"
+      requests:
+        memory: "4400Mi"
+        cpu: "300m"
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+```
+
+Há alguns problemas de formatação e de uso incorreto de campos no arquivo YAML fornecido. Aqui está uma versão corrigida:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: nginx-giropops
+    app: giropops-strigus
+  name: nginx-giropops
+spec:
+  containers:
+  - image: nginx
+    name: nginx-giropops
+    ports:
+    - containerPort: 80
+    resources: 
+      limits: 
+        memory: "4400Mi"
+        cpu: "500m"
+      requests:
+        memory: "4400Mi"
+        cpu: "300m"
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+```
+
+Aqui estão as correções realizadas:
+
+1. `**apiVersion**`: A versão `v1beta1` foi substituída por `v1`, que é a versão atualmente suportada.
+2. `**kind**`: Alterei o tipo de objeto para `Pod`, que é o correto para definir um pod.
+3. `**name**`: O nome do pod agora segue a convenção camelCase, alterando `nginx_giropops` para `nginx-giropops`.
+4. `**resources**`: Os campos `limits` e `requests` foram corrigidos para seguir a formatação correta. No campo `limits`, a unidade de memória foi alterada de `MB` para `Mi` e a unidade de CPU foi alterada de `0.5` para `500m` (milicores). No campo `requests`, a unidade de memória foi alterada de `MB` para `Mi` e a unidade de CPU foi alterada de `,3` para `300m`.
+5. `**dnsPolicy**`: Alterei de `ClusterSecond` para `ClusterFirst`, que é o padrão e mais comum.
+6. `**restartPolicy**`: Mantive como `Always`, pois é o comportamento padrão para a política de reinicialização de um pod.
+
+Essas correções devem resolver os problemas de formatação e uso incorreto de campos no arquivo YAML fornecido.

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: giropops-deployment
+  labels:
+    run: giropops
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      run: giropops
+  template:
+    metadata:
+      labels:
+        run: giropops
+    spec:
+      containers:
+      - name: giropops
+        image: nginx
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "0.5"
+          requests:
+            memory: "64Mi"
+            cpu: "0.3"
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          name: data
+      - name: strigus
+        image: alpine
+        args:
+        - sleep
+        - "1800"
+        volumeMounts:
+        - mountPath: /alpine/data
+          name: data
+      volumes:
+      - name: data
+        emptyDir: {}

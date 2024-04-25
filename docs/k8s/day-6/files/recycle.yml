@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-volume
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteOnce
+  # A política de reivindicação de volume persistente é Recycle. Ou seja o volume persistente será excluído automaticamente e o diretório será limpo. 
+  persistentVolumeReclaimPolicy: Recycle
+  # O tipo de armazenamento é hostPath, que é um diretório no nó do Kubernetes.  
+  hostPath:
+    path: "/tmp/data"
