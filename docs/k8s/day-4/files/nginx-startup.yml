@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx-deployment
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-deployment
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: nginx-deployment
+    spec:
+      containers:
+      - image: nginx:1.19.2
+        name: nginx
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: 256Mi
+          requests:
+            cpu: "0.25"
+            memory: 128Mi
+        startupProbe: # Aqui vamos definir a sonda de verificação de inicialização.
+          httpGet: # Vamos utilizar o protocolo HTTP para a verificação.
+            path: / # Vamos verificar a raiz do servidor.
+            port: 80 # Vamos verificar a porta 80.
+          initialDelaySeconds: 10 # Vamos esperar 10 segundos antes de executar a primeira verificação.
+          periodSeconds: 10 # Vamos executar a verificação a cada 10 segundos.
+          timeoutSeconds: 5 # Vamos esperar 5 segundos antes de considerar a verificação como falha.
+          successThreshold: 2 # O número de vezes que a probe precisa ser bem-sucedida para considerar que o container está pronto.
+          failureThreshold: 3 # Vamos considerar a sonda como falha após 3 tentativas.
