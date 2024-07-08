@@ -6,4 +6,4 @@ Acessando o Grafana e os Dashboards
 
 Acessando o Prometheus e o Alertmanager
 
-O que é um Service Monitor
+O que são os monitores do Prometheus
