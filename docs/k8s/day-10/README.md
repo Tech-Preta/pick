@@ -219,22 +219,18 @@ spec:
       targetPort: 9113 # porta do target
 ```
 
-**Atenção** o selector é um campo usado para selecionar os pods que devem ser monitorados. No exemplo, `matchLabels: app: myApplication` indica que o Pod Monitor deve selecionar pods que têm o label `app: myApplication`.
-
-A importância dessas informações estarem corretas é que elas determinam quais pods serão monitorados pelo Prometheus. Se essas informações estiverem incorretas, o Prometheus pode não ser capaz de descobrir e raspar as métricas dos pods corretos.
-
-### Comandos úteis
+**Atenção** o selector é um campo usado para selecionar os pods que devem ser monitorados. No exemplo, `matchLabels: app: nginx` indica que o Pod Monitor deve selecionar pods que têm o lab## Comandos úteisA importância dessas informações estarem corretas é que elas determinam quais pods serão monitorados pelo Prometheus. Se essas informações estiverem incorretas, o Prometheus pode não ser capaz de descobrir e raspar as métricas dos ## Additional Informationos úteis
 
 Verificar se o PodMonitor foi criado:
 
 ```bash
-kubectl get podmonitor -n kube-prometheus-stack
+kubectl get podmonitor -n monitoring
 ```
 
 Acesse o PodMonitor e verifique se o exporter está funcionando corretamente:
 
 ```bash
-kubectl exec -it nginx-pod -c nginx-exporter -n pick -- bash
+kubectl exec -it nginx-pod -c nginx-exporter -- bash
 curl localhost:9113/metrics
 ```
 
@@ -261,13 +257,13 @@ O Alertmanager é uma ferramenta de gerenciamento de alertas de código aberto q
 Caso você não tenha um ingress configurado, você pode acessar o Prometheus e o Alertmanager através do `port-forward`. Para isso, execute os seguintes comandos:
 
 ```bash
-kubectl port-forward svc/kube-prometheus-stack-prometheus 9090:9090 -n kube-prometheus-stack
+kubectl port-forward svc/prometheus-k8s 9090:9090 -n monitoring
 ```
 
 E para acessar o alertmanager:
 
 ```bash
-kubectl port-forward svc/kube-prometheus-stack-alertmanager 9093:9093 -n kube-prometheus-stack
+kubectl port-forward svc/alertmanager-main 9093:9093 -n monitoring
 ```
 
 Para usar o port-foward você utiliza o comando `kubectl port-forward svc/<service-name> <local-port>:<service-port> -n <namespace>`.
@@ -277,13 +273,13 @@ No Kubernetes utilizando o pacote helm do `kube-prometheus-stack`, os alertas s�
 Para visualizar os alertas configurados, execute o comando:
 
 ```bash
-kubectl get configmap prometheus-kube-prometheus-stack-prometheus-rulefiles-0 -n kube-prometheus-stack -o yaml
+kubectl get configmap prometheus-k8s-rulefiles-0 -n monitoring -o yaml
 ```
 
 Para editar o configmap de alertas do Prometheus, execute o comando:
 
 ```bash
-kubectl edit configmap prometheus-kube-prometheus-stack-prometheus-rulefiles-0 -n kube-prometheus-stack
+kubectl edit configmap prometheus-k8s-rulefiles-0 -n monitoring 
 ```
 
 Agora vamos criar um alerta no Prometheus e configurar o Alertmanager para lidar com esse alerta.
@@ -294,16 +290,13 @@ Agora vamos criar um alerta no Prometheus e configurar o Alertmanager para lidar
 apiVersion: monitoring.coreos.com/v1 # Versão da api do PrometheusRule
 kind: PrometheusRule # Tipo do recurso
 metadata: # Metadados do recurso (nome, namespace, labels)
-  annotations:
-    meta.helm.sh/release-name: kube-prometheus-stack
-    meta.helm.sh/release-namespace: kube-prometheus-stack
   name: nginx-prometheus-rule
-  namespace: kube-prometheus-stack
+  namespace: monitoring
   labels: # Labels do recurso
-    app: kube-prometheus-stack
+    prometheus: k8s # Label que indica que o PrometheusRule será utilizado pelo Prometheus do Kubernetes
     role: alert-rules # Label que indica que o PrometheusRule contém regras de alerta
-    app.kubernetes.io/name: kube-prometheus-stack # Label que indica que o PrometheusRule faz parte do kube-prometheus
-    app.kubernetes.io/part-of: kube-prometheus-stack # Label que indica que o PrometheusRule faz parte do kube-prometheus
+    app.kubernetes.io/name: kube-prometheus # Label que indica que o PrometheusRule faz parte do kube-prometheus
+    app.kubernetes.io/part-of: kube-prometheus # Label que indica que o PrometheusRule faz parte do kube-prometheus
 spec: # Especificação do recurso
   groups: # Lista de grupos de regras
   - name: nginx-prometheus-rule # Nome do grupo de regras
@@ -316,12 +309,21 @@ spec: # Especificação do recurso
       annotations: # Anotações do alerta
         summary: "Nginx is down" # Título do alerta
         description: "Nginx is down for more than 1 minute. Pod name: {{ $labels.pod }}" # Descrição do alerta
+
+    - alert: NginxHighRequestRate # Nome do alerta
+      expr: rate(nginx_http_requests_total{job="nginx"}[5m]) > 10 # Expressão que será utilizada para disparar o alerta
+      for: 1m # Tempo que a expressão deve ser verdadeira para que o alerta seja disparado
+      labels: # Labels do alerta
+        severity: warning # Label que indica a severidade do alerta
+      annotations: # Anotações do alerta
+        summary: "Nginx is receiving high request rate" # Título do alerta
+        description: "Nginx is receiving high request rate for more than 1 minute. Pod name: {{ $labels.pod }}" # Descrição do alerta
 ```
 
 Vamos verificar se o alerta foi criado:
 
 ```bash
-kubectl get prometheusrule -n kube-prometheus-stack 
+kubectl get prometheusrule -n monitoring
 ```
 
 2. **Configurar o Alertmanager**: Em seguida, você precisa configurar o Alertmanager para lidar com os alertas enviados pelo Prometheus. Aqui está um exemplo de como o arquivo `alertmanager-config.yaml` pode parecer:
