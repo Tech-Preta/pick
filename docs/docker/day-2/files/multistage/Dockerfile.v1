@@ -3,7 +3,7 @@
 # inicializa o módulo Go, compila a aplicação e define o comando para executar o executável compilado.
 
 # Imagem base
-FROM golang:1.18
+FROM golang:1.23rc2
 
 # Diretório de trabalho
 WORKDIR /app
